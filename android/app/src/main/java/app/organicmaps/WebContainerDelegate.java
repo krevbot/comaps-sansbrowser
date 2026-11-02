@@ -1,74 +1,44 @@
+
 package app.organicmaps;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.net.MailTo;
-import android.net.Uri;
 import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import app.organicmaps.base.OnBackPressListener;
 import app.organicmaps.util.UiUtils;
 
 public abstract class WebContainerDelegate implements OnBackPressListener
 {
-  private final WebView mWebView;
-  private final View mProgress;
-
-  @SuppressLint("SetJavaScriptEnabled")
-  private void initWebView(String url)
-  {
-    mWebView.setWebViewClient(new WebViewClient() {
-      @Override
-      public void onPageFinished(WebView view, String url)
-      {
-        UiUtils.show(mWebView);
-        UiUtils.hide(mProgress);
-      }
-
-      @Override
-      public boolean shouldOverrideUrlLoading(WebView v, String url)
-      {
-        if (MailTo.isMailTo(url))
-        {
-          MailTo parser = MailTo.parse(url);
-          doStartActivity(new Intent(Intent.ACTION_SEND)
-                              .putExtra(Intent.EXTRA_EMAIL, new String[] {parser.getTo()})
-                              .putExtra(Intent.EXTRA_TEXT, parser.getBody())
-                              .putExtra(Intent.EXTRA_SUBJECT, parser.getSubject())
-                              .putExtra(Intent.EXTRA_CC, parser.getCc())
-                              .setType("message/rfc822"));
-          v.reload();
-          return true;
-        }
-
-        doStartActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(url)));
-        return true;
-      }
-    });
-
-    mWebView.getSettings().setJavaScriptEnabled(true);
-    mWebView.getSettings().setDefaultTextEncodingName("utf-8");
-    mWebView.loadUrl(url);
-  }
-
+  /**
+   * Browser-free build.
+   *
+   * Embedded web content is intentionally disabled.
+   * This class must not create or load a WebView,
+   * execute JavaScript, or launch external URLs.
+   */
   public WebContainerDelegate(@NonNull View frame, @NonNull String url)
   {
-    mWebView = frame.findViewById(R.id.webview);
-    mProgress = frame.findViewById(R.id.progress);
-    initWebView(url);
+    // Hide any WebView already defined in the layout.
+    View webView = frame.findViewById(R.id.webview);
+    if (webView != null)
+      UiUtils.hide(webView);
+
+    // Hide the loading indicator.
+    View progress = frame.findViewById(R.id.progress);
+    if (progress != null)
+      UiUtils.hide(progress);
   }
 
   @Override
   public boolean onBackPressed()
   {
-    if (!mWebView.canGoBack())
-      return false;
-
-    mWebView.goBack();
-    return true;
+    // No browsing history exists.
+    return false;
   }
 
+  /**
+   * Retained for compatibility with existing subclasses.
+   * No activity is launched by this delegate.
+   */
   protected abstract void doStartActivity(Intent intent);
 }
