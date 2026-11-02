@@ -112,7 +112,6 @@ public class Utils
   public static void showSnackbarAbove(@NonNull View view, @NonNull View viewAbove, @NonNull String message)
   {
     Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
-    setSnackbarMaxLines(snackbar, 3);
     snackbar.setAnchorView(viewAbove);
     snackbar.show();
   }
@@ -191,29 +190,29 @@ public class Utils
     }
   }
 
+  /**
+   * Browser-free build: external website opening is disabled.
+   */
   public static void openUrl(@NonNull Context context, @Nullable String url)
   {
-    if (TextUtils.isEmpty(url))
-      return;
-
-    Uri uri =
-        isHttpOrHttpsScheme(url) ? Uri.parse(url) : new Uri.Builder().scheme("http").appendEncodedPath(url).build();
-
-    Utils.openUri(context, uri, R.string.browser_not_available);
+    // Intentionally disabled.
   }
 
   /**
-   * Attempts to open a URI in another app via the system app chooser.
-   * @param context the app context
-   * @param uri the URI to open.
-   * @param failMessage string id: message to show in a toast when the system can't find an app to open with.
+   * Browser-free build: only explicitly approved non-web URI schemes.
+   * Unknown schemes are blocked by default.
    */
   public static void openUri(@NonNull Context context, @NonNull Uri uri, @Nullable Integer failMessage)
   {
+    final String scheme = uri.getScheme();
+    if (scheme == null || !("geo".equalsIgnoreCase(scheme)
+                            || "tel".equalsIgnoreCase(scheme)
+                            || "mailto".equalsIgnoreCase(scheme)))
+      return;
+
     final Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(uri);
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    intent.addCategory(Intent.CATEGORY_BROWSABLE);
 
     try
     {
@@ -228,8 +227,6 @@ public class Utils
     catch (AndroidRuntimeException e)
     {
       Logger.e(TAG, "AndroidRuntimeException", e);
-      intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      context.startActivity(intent);
     }
   }
 
@@ -287,7 +284,7 @@ public class Utils
     res.setSpan(new AbsoluteSizeSpan(dimen(context, R.dimen.text_size_nav_number), false), 0,
                 distance.mDistanceStr.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     res.setSpan(new AbsoluteSizeSpan(dimen(context, R.dimen.text_size_nav_dimension), false),
-                distance.mDistanceStr.length(), res.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                distance.mDistanceStr.length(), mDistanceStr.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     return res;
   }
 
@@ -337,7 +334,7 @@ public class Utils
       }
       catch(IllegalStateException e)
       {
-        Logger.e(TAG, "Fragment.getParentFragmentManager() IllegalStateException", e);
+        Logger.e(TAG, "FragmentManager IllegalStateException", e);
       }
     }
   }
@@ -458,7 +455,7 @@ public class Utils
   {
     if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
       return getPackageInfoOld(manager, packageName, flags);
-    return manager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(flags));
+    return manager.getPackageInfo(manager, PackageManager.PackageInfoFlags.of(flags));
   }
 
   @NonNull
