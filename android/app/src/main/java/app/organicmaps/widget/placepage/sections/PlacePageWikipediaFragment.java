@@ -14,7 +14,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import app.organicmaps.R;
 import app.organicmaps.sdk.bookmarks.data.MapObject;
-import app.organicmaps.sdk.bookmarks.data.Metadata;
 import app.organicmaps.util.UiUtils;
 import app.organicmaps.util.Utils;
 import app.organicmaps.widget.placepage.PlacePageUtils;
@@ -56,9 +55,14 @@ public class PlacePageWikipediaFragment extends Fragment implements Observer<Map
     mWikiArticleView = view.findViewById(R.id.poi_wiki_article);
     View wikiArticleMoreBtn = view.findViewById(R.id.more_btn);
     mWikiArticleViewContainer = view.findViewById(R.id.poi_wiki_article_container);
+
     wikiArticleMoreBtn.setOnClickListener(v -> showWikiArticleScreen());
     mWikiArticleView.setOnClickListener(v -> showWikiArticleScreen());
+
     mWiki = view.findViewById(R.id.ll__place_wiki);
+
+    // Browser-free build: never display the online Wikipedia link.
+    UiUtils.hide(mWiki);
   }
 
   private void showWikiArticleScreen()
@@ -71,10 +75,12 @@ public class PlacePageWikipediaFragment extends Fragment implements Observer<Map
     String htmlWikiArticle = mMapObject.getWikiArticle();
     final int paragraphStart = htmlWikiArticle.indexOf("<p>");
     final int paragraphEnd = htmlWikiArticle.indexOf("</p>");
+
     if (paragraphStart == 0 && paragraphEnd != -1)
       htmlWikiArticle = htmlWikiArticle.substring(3, paragraphEnd);
 
     Spanned wikiArticle = Utils.fromHtml(htmlWikiArticle);
+
     if (wikiArticle.length() > mWikiArticleMaxLength)
     {
       wikiArticle = (Spanned) new SpannableStringBuilder(wikiArticle)
@@ -87,15 +93,14 @@ public class PlacePageWikipediaFragment extends Fragment implements Observer<Map
 
   private void updateViews()
   {
-    // There are two sources of wiki info in CoMaps:
-    // wiki links from OpenStreetMap, and wiki pages explicitly parsed into CoMaps.
-    // This part hides the WikiArticleView if the wiki page has not been parsed.
+    // Preserve locally stored Wikipedia article excerpts.
     if (TextUtils.isEmpty(mMapObject.getWikiArticle()))
       UiUtils.hide(mWikiArticleViewContainer);
     else
     {
       UiUtils.show(mWikiArticleViewContainer);
       mWikiArticleView.setText(getShortWikiArticle());
+
       final String wikiArticleString = mWikiArticleView.getText().toString();
       mWikiArticleView.setOnLongClickListener((v) -> {
         PlacePageUtils.copyToClipboard(requireContext(), mFrame, wikiArticleString);
@@ -103,18 +108,8 @@ public class PlacePageWikipediaFragment extends Fragment implements Observer<Map
       });
     }
 
-    final String wikipediaLink = mMapObject.getMetadata(Metadata.MetadataType.FMD_WIKIPEDIA);
-    if (TextUtils.isEmpty(wikipediaLink))
-      UiUtils.hide(mWiki);
-    else
-    {
-      UiUtils.show(mWiki);
-      mWiki.setOnClickListener((v) -> Utils.openUrl(requireContext(), wikipediaLink));
-      mWiki.setOnLongClickListener((v) -> {
-        PlacePageUtils.copyToClipboard(requireContext(), mFrame, wikipediaLink);
-        return true;
-      });
-    }
+    // Online Wikipedia links remain hidden, regardless of metadata.
+    UiUtils.hide(mWiki);
   }
 
   @Override
