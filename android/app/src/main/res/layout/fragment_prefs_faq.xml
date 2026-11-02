@@ -4,14 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Browser-free placeholder, preserving the existing view ID. -->
+    <!-- Browser-free placeholder -->
     <View
         android:id="@+id/webview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
-    <!-- Hidden because the online FAQ is disabled. -->
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progress"
         android:layout_width="wrap_content"
@@ -20,7 +19,6 @@
         android:indeterminate="true"
         android:visibility="gone" />
 
-    <!-- Preserve the feedback button. -->
     <include
         layout="@layout/feedback_fab"
         android:layout_width="match_parent"
