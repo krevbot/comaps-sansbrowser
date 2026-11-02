@@ -31,11 +31,11 @@
   <!--
     https://developer.android.com/reference/androidx/core/app/JobIntentService:
     When running on Android O, the JobScheduler will take care of wake locks
-    for you (holding a wake lock from the time you enqueue work until the job
+    for you (holding a wake lock from the time the job is enqueued work until the job
     has been dispatched and while it is running). When running on previous
-    versions of the platform, this wake lock handling is emulated in the
-    class here by directly calling the PowerManager; this means
-    the application must request the Manifest.permission.WAKE_LOCK permission.
+    versions of the platform, this wake lock handling is emulated using
+    the PowerManager; this means that the application must request
+    Manifest.permission.WAKE_LOCK.
   //-->
   <uses-permission android:name="android.permission.WAKE_LOCK"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -138,7 +138,7 @@
       <intent-filter>
         <action android:name="android.intent.action.VIEW" />
 
-        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE" />
 
         <data android:scheme="http"/>
@@ -156,8 +156,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
 
-        <data
-          android:scheme="mapsme"/>
+        <data android:scheme="mapsme"/>
       </intent-filter>
 
       <intent-filter>
@@ -206,14 +205,14 @@
         <data android:pathPattern="/.*\\..*\\..*\\.KMZ" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmz" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMZ" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmz" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMZ" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmz" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMZ" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.kmz" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMZ" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.kmz" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.KMZ" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.kmz" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.KMZ" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.kmz" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.KMZ" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.kmz" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.KMZ" />
         <data android:pathPattern="/.*\\.kml" />
         <data android:pathPattern="/.*\\.KML" />
         <data android:pathPattern="/.*\\..*\\.kml" />
@@ -222,30 +221,30 @@
         <data android:pathPattern="/.*\\..*\\..*\\.KML" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.kml" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.KML" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kml" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KML" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kml" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KML" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.kml" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.KML" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.kml" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.KML" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.kml" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.KML" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.kml" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.KML" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.kml" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KML" />
         <data android:pathPattern="/.*\\.gpx" />
         <data android:pathPattern="/.*\\.GPX" />
         <data android:pathPattern="/.*\\..*\\.gpx" />
         <data android:pathPattern="/.*\\..*\\.GPX" />
         <data android:pathPattern="/.*\\..*\\..*\\.gpx" />
         <data android:pathPattern="/.*\\..*\\..*\\.GPX" />
+        <data android:pathPattern="/.*\\..*\\..*\\.gpx" />
+        <data android:pathPattern="/.*\\..*\\..*\\.GPX" />
+        <data android:pathPattern="/.*\\..*\\..*\\.gpx" />
+        <data android:pathPattern="/.*\\..*\\..*\\.GPX" />
+        <data android:pathPattern="/.*\\..*\\..*\\.gpx" />
+        <data android:pathPattern="/.*\\..*\\..*\\.GPX" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.gpx" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.GPX" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.gpx" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.GPX" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.gpx" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.GPX" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.gpx" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.GPX" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.gpx" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.GPX" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.gpx" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.GPX" />
         <!-- Old MAPS.ME binary format //-->
         <data android:pathPattern="/.*\\.kmb" />
         <data android:pathPattern="/.*\\.KMB" />
@@ -255,14 +254,14 @@
         <data android:pathPattern="/.*\\..*\\..*\\.KMB" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmb" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMB" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmb" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMB" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmb" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMB" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.kmb" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMB" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.kmb" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.KMB" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.kmb" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.KMB" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.kmb" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.KMB" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.kmb" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.KMB" />
       </intent-filter>
 
       <!-- Duplicates the intent-filter above except it doesn't have mimeType, see
@@ -284,46 +283,46 @@
         <data android:pathPattern="/.*\\..*\\..*\\.KMZ" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmz" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMZ" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.kmz" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.KMZ" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.kmz" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.KMZ" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.kmz" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.KMZ" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.kmz" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.KMZ" />
+        <data android:pathPattern="/.*\\..*\\..*\\.kmz" />
+        <data android:pathPattern="/.*\\..*\\..*\\.KMZ" />
+        <data android:pathPattern="/.*\\..*\\..*\\.kmz" />
+        <data android:pathPattern="/.*\\..*\\..*\\.KMZ" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmz" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMZ" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmz" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMZ" />
         <data android:pathPattern="/.*\\.kml" />
         <data android:pathPattern="/.*\\.KML" />
         <data android:pathPattern="/.*\\..*\\.kml" />
         <data android:pathPattern="/.*\\..*\\.KML" />
         <data android:pathPattern="/.*\\..*\\..*\\.kml" />
         <data android:pathPattern="/.*\\..*\\..*\\.KML" />
+        <data android:pathPattern="/.*\\..*\\..*\\.kml" />
+        <data android:pathPattern="/.*\\..*\\..*\\.KML" />
+        <data android:pathPattern="/.*\\..*\\..*\\.kml" />
+        <data android:pathPattern="/.*\\..*\\..*\\.KML" />
+        <data android:pathPattern="/.*\\..*\\..*\\.kml" />
+        <data android:pathPattern="/.*\\..*\\..*\\.KML" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.kml" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.KML" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.kml" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.KML" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.kml" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.KML" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.kml" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.KML" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.kml" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.KML" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kml" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KML" />
         <data android:pathPattern="/.*\\.gpx" />
         <data android:pathPattern="/.*\\.GPX" />
         <data android:pathPattern="/.*\\..*\\.gpx" />
         <data android:pathPattern="/.*\\..*\\.GPX" />
         <data android:pathPattern="/.*\\..*\\..*\\.gpx" />
         <data android:pathPattern="/.*\\..*\\..*\\.GPX" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\.gpx" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\.GPX" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.gpx" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.GPX" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.gpx" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.GPX" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.gpx" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.GPX" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.gpx" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.GPX" />
+        <data android:pathPattern="/.*\\..*\\..*\\.gpx" />
+        <data android:pathPattern="/.*\\..*\\..*\\.GPX" />
+        <data android:pathPattern="/.*\\..*\\..*\\.gpx" />
+        <data android:pathPattern="/.*\\..*\\..*\\.GPX" />
+        <data android:pathPattern="/.*\\..*\\..*\\.gpx" />
+        <data android:pathPattern="/.*\\..*\\..*\\.GPX" />
+        <data android:pathPattern="/.*\\..*\\..*\\.gpx" />
+        <data android:pathPattern="/.*\\..*\\..*\\.GPX" />
+        <data android:pathPattern="/.*\\..*\\..*\\.gpx" />
+        <data android:pathPattern="/.*\\..*\\..*\\.GPX" />
         <!-- Old MAPS.ME binary format //-->
         <data android:pathPattern="/.*\\.kmb" />
         <data android:pathPattern="/.*\\.KMB" />
@@ -333,14 +332,14 @@
         <data android:pathPattern="/.*\\..*\\..*\\.KMB" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmb" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMB" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmb" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMB" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmb" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMB" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.kmb" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMB" />
         <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.kmb" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\.KMB" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.kmb" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\.KMB" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.kmb" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\.KMB" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.kmb" />
-        <data android:pathPattern="/.*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.KMB" />
+        <data android:pathPattern="/.*\\..*\\..*\\..*\\.KMB" />
       </intent-filter>
 
       <!-- Catches .gpx and .gpx.xml files opened from Google Files app -->
@@ -500,11 +499,12 @@
         android:enabled="true"
         android:stopWithTask="false"/>
 
-    <service android:name=".location.TrackRecordingService"
-      android:foregroundServiceType="location"
-      android:exported="false"
-      android:enabled="true"
-      android:stopWithTask="false"
+    <service
+        android:name=".location.TrackRecordingService"
+        android:foregroundServiceType="location"
+        android:exported="false"
+        android:enabled="true"
+        android:stopWithTask="false"
       />
 
     <service
