@@ -15,6 +15,11 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 200
+      - name: Configure submodule URLs
+        run: |
+          git config --file .gitmodules \
+          submodule.3party/kothic.url \
+          https://github.com/CoMaps/kothic.git
 
       - name: Set up Java 21
         uses: actions/setup-java@v4
