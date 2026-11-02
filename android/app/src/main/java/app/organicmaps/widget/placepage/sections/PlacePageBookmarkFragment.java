@@ -1,20 +1,20 @@
+
 package app.organicmaps.widget.placepage.sections;
 
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.util.Linkify;
-import android.util.Base64;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
@@ -37,8 +37,6 @@ public class PlacePageBookmarkFragment extends Fragment implements View.OnClickL
 {
   private View mFrame;
   private MaterialTextView mTvBookmarkNote;
-  @Nullable
-  private WebView mWvBookmarkNote;
 
   private PlacePageViewModel mViewModel;
 
@@ -62,17 +60,11 @@ public class PlacePageBookmarkFragment extends Fragment implements View.OnClickL
     mFrame = view;
     mTvBookmarkNote = mFrame.findViewById(R.id.tv__bookmark_notes);
     mTvBookmarkNote.setOnLongClickListener(this);
-  }
 
-  private void initWebView()
-  {
-    mWvBookmarkNote = new WebView(requireContext());
-    final WebSettings settings = mWvBookmarkNote.getSettings();
-    settings.setJavaScriptEnabled(false);
-    settings.setDefaultTextEncodingName("UTF-8");
-    final LinearLayout linearLayout = mFrame.findViewById(R.id.place_page_bookmark_layout);
-    // Add the webview in last position
-    linearLayout.addView(mWvBookmarkNote, linearLayout.getChildCount() - 1);
+    // Browser-free build: notes must never activate links.
+    mTvBookmarkNote.setAutoLinkMask(0);
+    mTvBookmarkNote.setLinksClickable(false);
+    mTvBookmarkNote.setMovementMethod(null);
   }
 
   @Override
@@ -92,54 +84,69 @@ public class PlacePageBookmarkFragment extends Fragment implements View.OnClickL
   private void updateBookmarkDetails()
   {
     String notes = null;
+
     if (currentBookmark != null)
-    {
       notes = currentBookmark.getBookmarkDescription();
-    }
+
     if (currentTrack != null)
-    {
       notes = currentTrack.getTrackDescription();
-    }
+
     if (TextUtils.isEmpty(notes))
     {
       UiUtils.hide(mTvBookmarkNote);
-      if (mWvBookmarkNote != null)
-        UiUtils.hide(mWvBookmarkNote);
+      return;
     }
-    else if (StringUtils.nativeIsHtml(notes))
+
+    if (StringUtils.nativeIsHtml(notes))
     {
-      if (mWvBookmarkNote == null)
-        initWebView();
-      // According to loadData documentation, HTML should be either base64 or percent encoded.
-      // Default UTF-8 encoding for all content is set above in WebSettings.
-      final String b64encoded = Base64.encodeToString(notes.getBytes(), Base64.DEFAULT);
-      mWvBookmarkNote.loadData(b64encoded, Utils.TEXT_HTML, "base64");
-      UiUtils.show(mWvBookmarkNote);
-      UiUtils.hide(mTvBookmarkNote);
+      // Render HTML as native text, without a WebView.
+      Spanned parsed = HtmlCompat.fromHtml(
+          notes,
+          HtmlCompat.FROM_HTML_MODE_COMPACT);
+
+      SpannableStringBuilder safeText =
+          new SpannableStringBuilder(parsed);
+
+      // Remove clickable links from imported HTML.
+      ClickableSpan[] links =
+          safeText.getSpans(0, safeText.length(), ClickableSpan.class);
+
+      for (ClickableSpan link : links)
+        safeText.removeSpan(link);
+
+      mTvBookmarkNote.setText(safeText);
     }
     else
     {
+      // Plain text stays plain text. No automatic URL linking.
       mTvBookmarkNote.setText(notes);
-      Linkify.addLinks(mTvBookmarkNote, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
-      UiUtils.show(mTvBookmarkNote);
-      if (mWvBookmarkNote != null)
-        UiUtils.hide(mWvBookmarkNote);
     }
+
+    UiUtils.show(mTvBookmarkNote);
   }
 
   @Override
   public void onClick(View v)
   {
     final FragmentActivity activity = requireActivity();
+
     if (currentBookmark != null)
     {
-      EditBookmarkFragment.editBookmark(currentBookmark.getCategoryId(), currentBookmark.getBookmarkId(), activity,
-                                        getChildFragmentManager(), PlacePageBookmarkFragment.this);
+      EditBookmarkFragment.editBookmark(
+          currentBookmark.getCategoryId(),
+          currentBookmark.getBookmarkId(),
+          activity,
+          getChildFragmentManager(),
+          PlacePageBookmarkFragment.this);
     }
     else if (currentTrack != null)
     {
-      EditBookmarkFragment.editBookmark(currentTrack.getCategoryId(), currentTrack.getTrackId(), activity,
-                                        getChildFragmentManager(), PlacePageBookmarkFragment.this);
+      EditBookmarkFragment.editBookmark(
+          currentTrack.getCategoryId(),
+          currentTrack.getTrackId(),
+          activity,
+          getChildFragmentManager(),
+          PlacePageBookmarkFragment.this);
     }
   }
 
@@ -151,29 +158,35 @@ public class PlacePageBookmarkFragment extends Fragment implements View.OnClickL
     final Context ctx = requireContext();
     Utils.copyTextToClipboard(ctx, notes);
 
-    KeyguardManager keyguardManager = (KeyguardManager) ctx.getSystemService(Context.KEYGUARD_SERVICE);
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || keyguardManager.isDeviceLocked())
+    KeyguardManager keyguardManager =
+        (KeyguardManager) ctx.getSystemService(Context.KEYGUARD_SERVICE);
+
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+        keyguardManager.isDeviceLocked())
     {
-      Utils.showSnackbarAbove(mFrame.getRootView().findViewById(R.id.pp_buttons_layout), mFrame,
-                              ctx.getString(R.string.copied_to_clipboard, notes));
+      Utils.showSnackbarAbove(
+          mFrame.getRootView().findViewById(R.id.pp_buttons_layout),
+          mFrame,
+          ctx.getString(R.string.copied_to_clipboard, notes));
     }
+
     return true;
   }
 
   @Override
   public void onChanged(@Nullable MapObject mapObject)
   {
-    // MapObject could be something else than a bookmark if the user already has the place page
-    // opened and clicks on a non-bookmarked POI.
-    // This callback would be called before the fragment had time to be destroyed
     if (mapObject != null && mapObject.isBookmark())
     {
       currentBookmark = (Bookmark) mapObject;
+      currentTrack = null;
       updateBookmarkDetails();
     }
+
     if (mapObject != null && mapObject.isTrack())
     {
       currentTrack = (Track) mapObject;
+      currentBookmark = null;
       updateBookmarkDetails();
     }
   }
@@ -181,9 +194,12 @@ public class PlacePageBookmarkFragment extends Fragment implements View.OnClickL
   @Override
   public void onBookmarkSaved(long bookmarkId, boolean movedFromCategory)
   {
-    Bookmark updatedBookmark = BookmarkManager.INSTANCE.updateBookmarkPlacePage(bookmarkId);
+    Bookmark updatedBookmark =
+        BookmarkManager.INSTANCE.updateBookmarkPlacePage(bookmarkId);
+
     if (updatedBookmark == null)
       return;
+
     mViewModel.setMapObject(updatedBookmark);
   }
 }
