@@ -112,6 +112,7 @@ public class Utils
   public static void showSnackbarAbove(@NonNull View view, @NonNull View viewAbove, @NonNull String message)
   {
     Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
+    setSnackbarMaxLines(snackbar, 3);
     snackbar.setAnchorView(viewAbove);
     snackbar.show();
   }
@@ -166,6 +167,7 @@ public class Utils
     final ClipData clip = ClipData.newPlainText(context.getString(R.string.project_name) + ": " + text, text);
     clipboard.setPrimaryClip(clip);
   }
+
   public static Uri buildMailUri(String to, String subject, String body)
   {
     String uriString = Constants.Url.MAILTO_SCHEME + Uri.encode(to) + Constants.Url.MAIL_SUBJECT + Uri.encode(subject)
@@ -199,15 +201,18 @@ public class Utils
   }
 
   /**
-   * Browser-free build: only explicitly approved non-web URI schemes.
+   * Browser-free build: allow only explicitly approved
+   * non-web URI schemes through this method.
    * Unknown schemes are blocked by default.
    */
   public static void openUri(@NonNull Context context, @NonNull Uri uri, @Nullable Integer failMessage)
   {
     final String scheme = uri.getScheme();
-    if (scheme == null || !("geo".equalsIgnoreCase(scheme)
-                            || "tel".equalsIgnoreCase(scheme)
-                            || "mailto".equalsIgnoreCase(scheme)))
+
+    if (scheme == null ||
+        !("geo".equalsIgnoreCase(scheme)
+          || "tel".equalsIgnoreCase(scheme)
+          || "mailto".equalsIgnoreCase(scheme)))
       return;
 
     final Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -222,6 +227,7 @@ public class Utils
     {
       if (failMessage != null)
         Toast.makeText(context, context.getString(failMessage), Toast.LENGTH_LONG).show();
+
       Logger.e(TAG, "ActivityNotFoundException", e);
     }
     catch (AndroidRuntimeException e)
@@ -284,7 +290,7 @@ public class Utils
     res.setSpan(new AbsoluteSizeSpan(dimen(context, R.dimen.text_size_nav_number), false), 0,
                 distance.mDistanceStr.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     res.setSpan(new AbsoluteSizeSpan(dimen(context, R.dimen.text_size_nav_dimension), false),
-                distance.mDistanceStr.length(), mDistanceStr.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                distance.mDistanceStr.length(), res.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     return res;
   }
 
@@ -334,7 +340,7 @@ public class Utils
       }
       catch(IllegalStateException e)
       {
-        Logger.e(TAG, "FragmentManager IllegalStateException", e);
+        Logger.e(TAG, "Fragment.getParentFragmentManager() IllegalStateException", e);
       }
     }
   }
@@ -360,6 +366,7 @@ public class Utils
 
     return Character.toLowerCase(src.charAt(0)) + src.substring(1);
   }
+
   public static String getLocalizedLevel(@NonNull Context context, @Nullable String level)
   {
     if (TextUtils.isEmpty(level))
@@ -455,7 +462,7 @@ public class Utils
   {
     if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
       return getPackageInfoOld(manager, packageName, flags);
-    return manager.getPackageInfo(manager, PackageManager.PackageInfoFlags.of(flags));
+    return manager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(flags));
   }
 
   @NonNull
