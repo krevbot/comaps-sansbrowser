@@ -1,3 +1,4 @@
+
 package app.organicmaps.util;
 
 import static app.organicmaps.sdk.util.Utils.dimen;
@@ -176,24 +177,16 @@ public class Utils
     return Uri.parse(uriString);
   }
 
+  /**
+   * Browser-free build: external app store links are disabled.
+   */
   public static void openAppInMarket(Activity activity, String url)
   {
-    final Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-    marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-    marketIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-
-    try
-    {
-      activity.startActivity(marketIntent);
-    }
-    catch (ActivityNotFoundException e)
-    {
-      Logger.e(TAG, "Failed to start activity", e);
-    }
+    // Intentionally disabled.
   }
 
   /**
-   * Browser-free build: external website opening is disabled.
+   * Browser-free build: external website links are disabled.
    */
   public static void openUrl(@NonNull Context context, @Nullable String url)
   {
@@ -201,9 +194,8 @@ public class Utils
   }
 
   /**
-   * Browser-free build: allow only explicitly approved
+   * Browser-free build: permit only explicitly approved
    * non-web URI schemes through this method.
-   * Unknown schemes are blocked by default.
    */
   public static void openUri(@NonNull Context context, @NonNull Uri uri, @Nullable Integer failMessage)
   {
