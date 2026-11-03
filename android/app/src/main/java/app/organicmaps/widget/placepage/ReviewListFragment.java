@@ -2,7 +2,6 @@ package app.organicmaps.widget.placepage;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.text.method.LinkMovementMethod;
 import android.view.View;
 
 import androidx.annotation.CallSuper;
@@ -35,11 +34,22 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
   public void onViewCreated(View view, Bundle savedInstanceState)
   {
     super.onViewCreated(view, savedInstanceState);
-    DividerItemDecoration divider = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
+
+    DividerItemDecoration divider =
+        new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
     getRecyclerView().addItemDecoration(divider);
+
     handleBottomNavBar(view);
     configureAddReviewLink(view);
-    view.<MaterialTextView>findViewById(R.id.review_source).setMovementMethod(LinkMovementMethod.getInstance());
+
+    // Browser-free build: display review-source text
+    // without allowing hyperlinks to be opened.
+    MaterialTextView reviewSource = view.findViewById(R.id.review_source);
+    if (reviewSource != null)
+    {
+      reviewSource.setLinksClickable(false);
+      reviewSource.setMovementMethod(null);
+    }
   }
 
   @LayoutRes
@@ -53,33 +63,44 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
   protected ReviewListAdapter createAdapter()
   {
     List<Review> reviews;
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-      reviews = Objects.requireNonNull(requireArguments().getParcelableArrayList(EXTRA_REVIEWS, Review.class));
+      reviews = Objects.requireNonNull(
+          requireArguments().getParcelableArrayList(EXTRA_REVIEWS, Review.class));
     else
       //noinspection deprecation
-      reviews = Objects.requireNonNull(requireArguments().getParcelableArrayList(EXTRA_REVIEWS));
+      reviews = Objects.requireNonNull(
+          requireArguments().getParcelableArrayList(EXTRA_REVIEWS));
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-      return new ReviewListAdapter(reviews, getResources().getConfiguration().getLocales().get(0));
+      return new ReviewListAdapter(
+          reviews,
+          getResources().getConfiguration().getLocales().get(0));
     else
       //noinspection deprecation
-      return new ReviewListAdapter(reviews, getResources().getConfiguration().locale);
+      return new ReviewListAdapter(
+          reviews,
+          getResources().getConfiguration().locale);
   }
 
   private void handleBottomNavBar(View view)
   {
     View reviewSource = view.findViewById(R.id.review_source);
+
     if (reviewSource != null)
     {
       int originalPaddingBottom = reviewSource.getPaddingBottom();
+
       ViewCompat.setOnApplyWindowInsetsListener(reviewSource, (v, insets) -> {
-        Insets navBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+        Insets navBars =
+            insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
         v.setPadding(
             v.getPaddingLeft(),
             v.getPaddingTop(),
             v.getPaddingRight(),
-            originalPaddingBottom + navBars.bottom
-        );
+            originalPaddingBottom + navBars.bottom);
+
         return insets;
       });
     }
@@ -88,9 +109,18 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
   private void configureAddReviewLink(View view)
   {
     Bundle args = requireArguments();
-    String editorAppName = args.getString(EXTRA_REVIEW_EDITOR_APP_NAME);
-    FeatureId featureId = Objects.requireNonNull(Utils.getParcelable(args, EXTRA_FEATURE_ID, FeatureId.class));
-    AddReviewController addReviewController = new AddReviewController(view.findViewById(R.id.add_review_container), getParentFragmentManager());
+
+    String editorAppName =
+        args.getString(EXTRA_REVIEW_EDITOR_APP_NAME);
+
+    FeatureId featureId = Objects.requireNonNull(
+        Utils.getParcelable(args, EXTRA_FEATURE_ID, FeatureId.class));
+
+    AddReviewController addReviewController =
+        new AddReviewController(
+            view.findViewById(R.id.add_review_container),
+            getParentFragmentManager());
+
     addReviewController.updateView(editorAppName, featureId);
   }
 }
