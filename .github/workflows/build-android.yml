@@ -61,13 +61,13 @@ jobs:
         run: |
           ./gradlew \
             -Pandroidauto=true \
-            -Parm64 \
+            -Px64 \
             assembleFdroidDebug \
             --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: CoMaps-Test-APK
+          name: CoMaps-BlueStacks-x64-Test-APK
           path: android/app/build/outputs/apk/**/*.apk
           if-no-files-found: error
