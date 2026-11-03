@@ -40,15 +40,11 @@ public class AdvancedTimetableFragment extends BaseMwmFragment
                            ViewGroup container,
                            Bundle savedInstanceState)
   {
-    return inflater.inflate(
-        R.layout.fragment_timetable_advanced,
-        container,
-        false);
+    return inflater.inflate(R.layout.fragment_timetable_advanced, container, false);
   }
 
   @Override
-  public void onViewCreated(@NonNull View view,
-                            @Nullable Bundle savedInstanceState)
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
   {
     super.onViewCreated(view, savedInstanceState);
     initViews(view);
@@ -61,10 +57,9 @@ public class AdvancedTimetableFragment extends BaseMwmFragment
     view.findViewById(R.id.examples).setOnClickListener(this);
 
     mInput = view.findViewById(R.id.et__timetable);
-
-    // Native offline examples. No WebView or network access.
     mExample = view.findViewById(R.id.wv__examples);
 
+    // Offline opening-hours examples. No browser or JavaScript.
     mExample.setText(
         "Opening hours examples\n\n"
         + "Monday to Friday, 9 AM to 5 PM:\n"
@@ -80,8 +75,7 @@ public class AdvancedTimetableFragment extends BaseMwmFragment
         + "Closed on public holidays:\n"
         + "PH off\n\n"
         + "Combined example:\n"
-        + "Mo-Fr 09:00-17:00; Sa 10:00-14:00; Su,PH off"
-    );
+        + "Mo-Fr 09:00-17:00; Sa 10:00-14:00; Su,PH off");
 
     mExamplesTitle = view.findViewById(R.id.tv__examples_title);
 
@@ -117,18 +111,13 @@ public class AdvancedTimetableFragment extends BaseMwmFragment
     }
   }
 
-  private void setExampleDrawables(@DrawableRes int left,
-                                   @DrawableRes int right)
+  private void setExampleDrawables(@DrawableRes int left, @DrawableRes int right)
   {
     mExamplesTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(
-        Graphics.tint(
-            requireActivity(),
-            left,
+        Graphics.tint(requireActivity(), left,
             com.google.android.material.R.attr.colorSecondary),
         null,
-        Graphics.tint(
-            requireActivity(),
-            right,
+        Graphics.tint(requireActivity(), right,
             com.google.android.material.R.attr.colorSecondary),
         null);
   }
@@ -164,8 +153,7 @@ public class AdvancedTimetableFragment extends BaseMwmFragment
     InputUtils.showKeyboard(mInput);
   }
 
-  void setTimetableChangedListener(
-      @NonNull TimetableChangedListener listener)
+  void setTimetableChangedListener(@NonNull TimetableChangedListener listener)
   {
     mListener = listener;
     setTextChangedListener(mInput, mListener);
@@ -189,8 +177,7 @@ public class AdvancedTimetableFragment extends BaseMwmFragment
           CharSequence s, int start, int before, int count)
       {
         mSaveButton.setEnabled(
-            OpeningHours.nativeIsTimetableStringValid(
-                s.toString()));
+            OpeningHours.nativeIsTimetableStringValid(s.toString()));
       }
 
       @Override
