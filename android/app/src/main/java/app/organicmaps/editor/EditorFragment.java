@@ -9,7 +9,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -850,7 +849,8 @@ public class EditorFragment extends BaseMwmFragment implements View.OnClickListe
     final View cardMore = view.findViewById(R.id.cv__more);
     mDescription = findInput(cardMore);
     MaterialTextView osmInfo = view.findViewById(R.id.osm_info);
-    osmInfo.setMovementMethod(LinkMovementMethod.getInstance());
+    osmInfo.setLinksClickable(false);
+    osmInfo.setMovementMethod(null);
     mReset = view.findViewById(R.id.reset);
     mReset.setOnClickListener(this);
     mDisused = view.findViewById(R.id.disused);
