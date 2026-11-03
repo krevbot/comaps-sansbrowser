@@ -6,14 +6,12 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import app.organicmaps.R;
 import app.organicmaps.base.BaseMwmFragment;
 import app.organicmaps.sdk.editor.OpeningHours;
-import app.organicmaps.sdk.util.Constants;
 import app.organicmaps.util.Graphics;
 import app.organicmaps.util.InputUtils;
 import app.organicmaps.util.UiUtils;
@@ -21,27 +19,36 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
 
-public class AdvancedTimetableFragment extends BaseMwmFragment implements View.OnClickListener, TimetableProvider
+public class AdvancedTimetableFragment extends BaseMwmFragment
+    implements View.OnClickListener, TimetableProvider
 {
   private boolean mIsExampleShown;
   private TextInputEditText mInput;
-  private WebView mExample;
+  private MaterialTextView mExample;
   private MaterialTextView mExamplesTitle;
   private static ShapeableImageView mSaveButton;
+
   @Nullable
   private String mInitTimetables;
+
   @Nullable
   TimetableChangedListener mListener;
 
   @Nullable
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+  public View onCreateView(@NonNull LayoutInflater inflater,
+                           ViewGroup container,
+                           Bundle savedInstanceState)
   {
-    return inflater.inflate(R.layout.fragment_timetable_advanced, container, false);
+    return inflater.inflate(
+        R.layout.fragment_timetable_advanced,
+        container,
+        false);
   }
 
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+  public void onViewCreated(@NonNull View view,
+                            @Nullable Bundle savedInstanceState)
   {
     super.onViewCreated(view, savedInstanceState);
     initViews(view);
@@ -49,45 +56,81 @@ public class AdvancedTimetableFragment extends BaseMwmFragment implements View.O
     showExample(false);
   }
 
-  @Override
-  public void onResume()
-  {
-    super.onResume();
-  }
-
   private void initViews(View view)
   {
     view.findViewById(R.id.examples).setOnClickListener(this);
+
     mInput = view.findViewById(R.id.et__timetable);
+
+    // Native offline examples. No WebView or network access.
     mExample = view.findViewById(R.id.wv__examples);
-    mExample.getSettings().setJavaScriptEnabled(true);
-    mExample.loadUrl(Constants.Url.OPENING_HOURS_MANUAL);
+
+    mExample.setText(
+        "Opening hours examples\n\n"
+        + "Monday to Friday, 9 AM to 5 PM:\n"
+        + "Mo-Fr 09:00-17:00\n\n"
+        + "Saturday, 10 AM to 2 PM:\n"
+        + "Sa 10:00-14:00\n\n"
+        + "Closed on Sunday:\n"
+        + "Su off\n\n"
+        + "Monday to Friday with a lunch break:\n"
+        + "Mo-Fr 09:00-12:00,13:00-17:00\n\n"
+        + "Open 24 hours:\n"
+        + "24/7\n\n"
+        + "Closed on public holidays:\n"
+        + "PH off\n\n"
+        + "Combined example:\n"
+        + "Mo-Fr 09:00-17:00; Sa 10:00-14:00; Su,PH off"
+    );
+
     mExamplesTitle = view.findViewById(R.id.tv__examples_title);
-    setExampleDrawables(R.drawable.ic_type_text, R.drawable.ic_expand_more);
+
+    setExampleDrawables(
+        R.drawable.ic_type_text,
+        R.drawable.ic_expand_more);
+
     setTextChangedListener(mInput, mListener);
-    mSaveButton = getParentFragment().getParentFragment().getView().findViewById(R.id.save);
+
+    mSaveButton = getParentFragment()
+        .getParentFragment()
+        .getView()
+        .findViewById(R.id.save);
   }
 
   private void showExample(boolean show)
   {
     mIsExampleShown = show;
+
     if (mIsExampleShown)
     {
       UiUtils.show(mExample);
-      setExampleDrawables(R.drawable.ic_type_text, R.drawable.ic_expand_less);
+      setExampleDrawables(
+          R.drawable.ic_type_text,
+          R.drawable.ic_expand_less);
     }
     else
     {
       UiUtils.hide(mExample);
-      setExampleDrawables(R.drawable.ic_type_text, R.drawable.ic_expand_more);
+      setExampleDrawables(
+          R.drawable.ic_type_text,
+          R.drawable.ic_expand_more);
     }
   }
 
-  private void setExampleDrawables(@DrawableRes int left, @DrawableRes int right)
+  private void setExampleDrawables(@DrawableRes int left,
+                                   @DrawableRes int right)
   {
     mExamplesTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(
-        Graphics.tint(requireActivity(), left, com.google.android.material.R.attr.colorSecondary), null,
-        Graphics.tint(requireActivity(), right, com.google.android.material.R.attr.colorSecondary), null);
+        Graphics.tint(
+            requireActivity(),
+            left,
+            com.google.android.material.R.attr.colorSecondary),
+        null,
+        Graphics.tint(
+            requireActivity(),
+            right,
+            com.google.android.material.R.attr.colorSecondary),
+        null);
   }
 
   @Override
@@ -121,27 +164,33 @@ public class AdvancedTimetableFragment extends BaseMwmFragment implements View.O
     InputUtils.showKeyboard(mInput);
   }
 
-  void setTimetableChangedListener(@NonNull TimetableChangedListener listener)
+  void setTimetableChangedListener(
+      @NonNull TimetableChangedListener listener)
   {
     mListener = listener;
     setTextChangedListener(mInput, mListener);
   }
 
-  private static void setTextChangedListener(@Nullable TextInputEditText input,
-                                             @Nullable TimetableChangedListener listener)
+  private static void setTextChangedListener(
+      @Nullable TextInputEditText input,
+      @Nullable TimetableChangedListener listener)
   {
     if (input == null || listener == null)
       return;
 
     input.addTextChangedListener(new TextWatcher() {
       @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after)
+      public void beforeTextChanged(
+          CharSequence s, int start, int count, int after)
       {}
 
       @Override
-      public void onTextChanged(CharSequence s, int start, int before, int count)
+      public void onTextChanged(
+          CharSequence s, int start, int before, int count)
       {
-        mSaveButton.setEnabled(OpeningHours.nativeIsTimetableStringValid(s.toString()));
+        mSaveButton.setEnabled(
+            OpeningHours.nativeIsTimetableStringValid(
+                s.toString()));
       }
 
       @Override
