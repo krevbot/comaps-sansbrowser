@@ -1,40 +1,36 @@
 package app.organicmaps.util;
 
 import android.app.Activity;
-import android.content.ClipData;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
-import android.text.TextUtils;
 import android.util.Pair;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
 import app.organicmaps.R;
-import app.organicmaps.SplashActivity;
-import app.organicmaps.sdk.Framework;
 import app.organicmaps.sdk.bookmarks.data.BookmarkInfo;
 import app.organicmaps.sdk.bookmarks.data.MapObject;
 import app.organicmaps.sdk.util.StorageUtils;
 import app.organicmaps.sdk.util.log.Logger;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SharingUtils
 {
   private static final String TAG = SharingUtils.class.getSimpleName();
+
   private static final String KML_MIME_TYPE = "application/vnd.google-earth.kml+xml";
   private static final String KMZ_MIME_TYPE = "application/vnd.google-earth.kmz";
   private static final String GPX_MIME_TYPE = "application/gpx+xml";
   private static final String TEXT_MIME_TYPE = "text/plain";
+
   public static class ShareInfo
   {
     public String mMimeType = "";
@@ -80,15 +76,17 @@ public class SharingUtils
     {
       return mIntent;
     }
+
     Uri GetSourceFile()
     {
       return mSource;
     }
   }
 
-  public static class SharingContract extends ActivityResultContract<SharingIntent, Pair<Uri, Uri>>
+  public static class SharingContract
+      extends ActivityResultContract<SharingIntent, Pair<Uri, Uri>>
   {
-    static private Uri sourceUri;
+    private Uri sourceUri;
 
     @NonNull
     @Override
@@ -103,164 +101,159 @@ public class SharingUtils
     {
       if (resultCode == Activity.RESULT_OK && intent != null)
       {
-        Uri dest = intent.getData();
-        return new Pair<>(sourceUri, dest);
+        Uri destinationUri = intent.getData();
+
+        if (sourceUri != null && destinationUri != null)
+          return new Pair<>(sourceUri, destinationUri);
       }
+
       return null;
     }
   }
 
-  // This utility class has only static methods
+  // Utility class: static methods only.
   private SharingUtils() {}
 
-  public static void shareLocation(@NonNull Context context, @NonNull Location loc)
+  /**
+   * SansBrowser:
+   * Disable sharing the current location through external apps.
+   */
+  public static void shareLocation(@NonNull Context context,
+                                   @NonNull Location loc)
   {
-    Intent intent = new Intent(Intent.ACTION_SEND);
-    intent.setType(TEXT_MIME_TYPE);
-
-    final String geoUrl =
-        Framework.nativeGetGeoUri(loc.getLatitude(), loc.getLongitude(), Framework.nativeGetDrawScale(), "")
-            .replaceAll("\\?.*", ""); //Strip out the zoom and redundant coordinates that don't add much information and might make the link scary
-    final String httpUrl =
-        Framework.getHttpGe0Url(loc.getLatitude(), loc.getLongitude(), Framework.nativeGetDrawScale(), "");
-    final String text = context.getString(R.string.my_position_share_email, httpUrl, geoUrl);
-    intent.putExtra(Intent.EXTRA_TEXT, text);
-
-    context.startActivity(Intent.createChooser(intent, context.getString(R.string.share)));
+    // External sharing intentionally disabled.
   }
 
-  public static void shareMapObject(@NonNull Context context, @NonNull MapObject object)
+  /**
+   * SansBrowser:
+   * Disable sharing map objects through external apps.
+   */
+  public static void shareMapObject(@NonNull Context context,
+                                    @NonNull MapObject object)
   {
-    Intent intent = new Intent(Intent.ACTION_SEND);
-    intent.setType(TEXT_MIME_TYPE);
-
-    final String geoUrl =
-        Framework.nativeGetGeoUri(object.getLat(), object.getLon(), object.getScale(), object.getName())
-            .replaceAll("\\?.*", ""); //Strip out the zoom and redundant coordinates that don't add much information and might make the link scary
-    final String httpUrl =
-        Framework.getHttpGe0Url(object.getLat(), object.getLon(), object.getScale(), object.getName());
-
-    final String text = object.isMyPosition() ? context.getString(R.string.my_position_share_email, httpUrl, geoUrl)
-        : context.getString(R.string.bookmark_share_email_subject, httpUrl, geoUrl);
-    intent.putExtra(Intent.EXTRA_TEXT, text);
-
-    context.startActivity(Intent.createChooser(intent, context.getString(R.string.share)));
+    // External sharing intentionally disabled.
   }
 
-  public static void shareBookmark(@NonNull Context context, @NonNull BookmarkInfo bookmark)
+  /**
+   * SansBrowser:
+   * Disable sharing bookmarks through external apps.
+   */
+  public static void shareBookmark(@NonNull Context context,
+                                   @NonNull BookmarkInfo bookmark)
   {
-    Intent intent = new Intent(Intent.ACTION_SEND);
-    intent.setType(TEXT_MIME_TYPE);
+    // External sharing intentionally disabled.
+  }
 
-    final String subject = context.getString(R.string.bookmark_share_email_subject);
-    final String geoUrl =
-        Framework.nativeGetGeoUri(bookmark.getLat(), bookmark.getLon(), bookmark.getScale(), bookmark.getName())
-            .replaceAll("\\?.*", ""); //Strip out the zoom and redundant coordinates that don't add much information and might make the link scary
-    final String httpUrl =
-        Framework.getHttpGe0Url(bookmark.getLat(), bookmark.getLon(), bookmark.getScale(), bookmark.getName());
-    StringBuilder text = new StringBuilder();
-    text.append(context.getString(R.string.bookmark_share_email_subject, httpUrl, geoUrl));
-    if (!TextUtils.isEmpty(bookmark.getAddress()))
+  /**
+   * Copy an exported file to a location selected by the user.
+   */
+  private static void ProcessShareResult(
+      @NonNull ContentResolver resolver,
+      Pair<Uri, Uri> result)
+  {
+    if (result == null)
+      return;
+
+    Uri sourceUri = result.first;
+    Uri destinationUri = result.second;
+
+    if (sourceUri == null || destinationUri == null)
+      return;
+
+    try
     {
-      text.append(UiUtils.NEW_STRING_DELIMITER);
-      text.append(bookmark.getAddress());
+      StorageUtils.copyFile(resolver, sourceUri, destinationUri);
     }
-    intent.putExtra(Intent.EXTRA_TEXT, text.toString());
-
-    context.startActivity(Intent.createChooser(intent, context.getString(R.string.share)));
-  }
-
-  private static void ProcessShareResult(@NonNull ContentResolver resolver, Pair<Uri, Uri> result)
-  {
-    if (resolver != null && result != null)
+    catch (IOException e)
     {
-      Uri sourceUri = result.first;
-      Uri destinationUri = result.second;
-
-      try
-      {
-        if (sourceUri != null && destinationUri != null)
-          StorageUtils.copyFile(resolver, sourceUri, destinationUri);
-      }
-      catch (IOException e)
-      {
-        throw new RuntimeException(e);
-      }
+      throw new RuntimeException(e);
     }
   }
-  public static ActivityResultLauncher<SharingIntent> RegisterLauncher(@NonNull Fragment fragment)
+
+  public static ActivityResultLauncher<SharingIntent> RegisterLauncher(
+      @NonNull Fragment fragment)
   {
     return fragment.registerForActivityResult(
-        new SharingContract(), result -> ProcessShareResult(fragment.requireContext().getContentResolver(), result));
-  }
-  public static ActivityResultLauncher<SharingIntent> RegisterLauncher(@NonNull AppCompatActivity activity)
-  {
-    return activity.registerForActivityResult(new SharingContract(),
-                                              result -> ProcessShareResult(activity.getContentResolver(), result));
+        new SharingContract(),
+        result -> ProcessShareResult(
+            fragment.requireContext().getContentResolver(),
+            result));
   }
 
-  public static void shareFile(Context context, ActivityResultLauncher<SharingIntent> launcher, ShareInfo info)
+  public static ActivityResultLauncher<SharingIntent> RegisterLauncher(
+      @NonNull AppCompatActivity activity)
   {
-    Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+    return activity.registerForActivityResult(
+        new SharingContract(),
+        result -> ProcessShareResult(
+            activity.getContentResolver(),
+            result));
+  }
 
-    if (!info.mSubject.isEmpty())
-      intent.putExtra(Intent.EXTRA_SUBJECT, info.mSubject);
-    if (!info.mMail.isEmpty())
-      intent.putExtra(Intent.EXTRA_EMAIL, new String[] {info.mMail});
-    if (!info.mText.isEmpty())
-      intent.putExtra(Intent.EXTRA_TEXT, info.mText);
+  /**
+   * SansBrowser:
+   *
+   * Export files only through Android's document picker.
+   *
+   * No ACTION_SEND.
+   * No ACTION_SEND_MULTIPLE.
+   * No Intent.createChooser().
+   * No external sharing applications.
+   */
+  public static void shareFile(
+      Context context,
+      ActivityResultLauncher<SharingIntent> launcher,
+      ShareInfo info)
+  {
+    if (info == null || info.mFileName.isEmpty())
+      return;
 
-    Intent chooser = Intent.createChooser(intent, context.getString(R.string.share));
-    SharingIntent sharingIntent = new SharingIntent(chooser);
+    final Uri fileUri =
+        StorageUtils.getUriForFilePath(context, info.mFileName);
 
-    if (!info.mFileName.isEmpty())
-    {
-      final Uri fileUri = StorageUtils.getUriForFilePath(context, info.mFileName);
-      Logger.i(TAG, "Sharing file " + info.mMimeType + " " + info.mFileName + " with URI " + fileUri);
-      intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, new ArrayList<>(List.of(fileUri)));
-      intent.setDataAndType(fileUri, info.mMimeType);
+    Logger.i(TAG, "Exporting file " + info.mMimeType
+                   + " " + info.mFileName);
 
-      // Properly set permissions for intent, see
-      // https://developer.android.com/reference/androidx/core/content/FileProvider#include-the-permission-in-an-intent
-      intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+    Intent saveIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+    saveIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
-      if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1)
-      {
-        intent.setClipData(ClipData.newRawUri("", fileUri));
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                        | Intent.FLAG_ACTIVITY_NEW_TASK);
-      }
+    String mimeType = info.mMimeType;
 
-      Intent saveIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-      saveIntent.setType(info.mMimeType);
+    if (mimeType == null || mimeType.isEmpty())
+      mimeType = "application/octet-stream";
 
-      final String fileName = fileUri.getPathSegments().get(fileUri.getPathSegments().size() - 1);
-      saveIntent.putExtra(Intent.EXTRA_TITLE, fileName);
+    saveIntent.setType(mimeType);
 
-      Intent[] extraIntents = {saveIntent};
+    final String fileName = info.mFileName.substring(
+        info.mFileName.lastIndexOf('/') + 1);
 
-      // Prevent sharing to ourselves (supported from API Level 24).
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-      {
-        ComponentName[] excludeSelf = {new ComponentName(context, SplashActivity.class)};
-        chooser.putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, excludeSelf);
-      }
+    saveIntent.putExtra(Intent.EXTRA_TITLE, fileName);
 
-      chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents);
-
-      sharingIntent.SetSourceFile(fileUri);
-    }
+    SharingIntent sharingIntent =
+        new SharingIntent(saveIntent, fileUri);
 
     launcher.launch(sharingIntent);
   }
 
-  public static void shareBookmarkFile(Context context, ActivityResultLauncher<SharingIntent> launcher, String fileName,
-                                       String mimeType)
+  /**
+   * Export bookmark files locally without using
+   * Android's external sharing interface.
+   */
+  public static void shareBookmarkFile(
+      Context context,
+      ActivityResultLauncher<SharingIntent> launcher,
+      String fileName,
+      String mimeType)
   {
-    final String subject = context.getString(R.string.share_bookmarks_email_subject);
-    final String text = context.getString(R.string.share_bookmarks_email_body);
+    final String subject =
+        context.getString(R.string.share_bookmarks_email_subject);
 
-    ShareInfo info = new ShareInfo(mimeType, subject, text, "", fileName);
+    final String text =
+        context.getString(R.string.share_bookmarks_email_body);
+
+    ShareInfo info =
+        new ShareInfo(mimeType, subject, text, "", fileName);
+
     shareFile(context, launcher, info);
   }
 }
