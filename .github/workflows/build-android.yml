@@ -45,7 +45,8 @@ jobs:
             qt6-svg-dev \
             libicu-dev \
             libfreetype-dev \
-            libharfbuzz-dev
+            libharfbuzz-dev \
+            libxrandr-dev
 
       - name: Generate map symbols
         shell: bash
