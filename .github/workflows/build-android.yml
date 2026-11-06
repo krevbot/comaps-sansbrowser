@@ -46,7 +46,10 @@ jobs:
             libicu-dev \
             libfreetype-dev \
             libharfbuzz-dev \
-            libxrandr-dev
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev
 
       - name: Generate map symbols
         shell: bash
