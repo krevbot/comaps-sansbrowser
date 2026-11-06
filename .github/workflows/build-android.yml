@@ -51,11 +51,19 @@ jobs:
             libxcursor-dev \
             libxi-dev
 
+
+      - name: Configure CoMaps Python environment
+        shell: bash
+        run: |
+          sudo apt-get install -y python3-venv
+          ./configure.sh
+
       - name: Generate map symbols
         shell: bash
         run: |
           bash tools/unix/generate_symbols.sh
 
+     
       - name: Verify generated map symbols
         shell: bash
         run: |
