@@ -16,9 +16,7 @@ import com.google.android.material.textview.MaterialTextView;
 
 import app.organicmaps.R;
 import app.organicmaps.base.BaseMwmRecyclerFragment;
-import app.organicmaps.sdk.bookmarks.data.FeatureId;
 import app.organicmaps.sdk.bookmarks.data.Review;
-import app.organicmaps.util.Utils;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,16 +38,8 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
     getRecyclerView().addItemDecoration(divider);
 
     handleBottomNavBar(view);
-    configureAddReviewLink(view);
-
-    // Browser-free build: display review-source text
-    // without allowing hyperlinks to be opened.
-    MaterialTextView reviewSource = view.findViewById(R.id.review_source);
-    if (reviewSource != null)
-    {
-      reviewSource.setLinksClickable(false);
-      reviewSource.setMovementMethod(null);
-    }
+    disableReviewSourceLinks(view);
+    hideAddReviewSection(view);
   }
 
   @LayoutRes
@@ -92,8 +82,7 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
       int originalPaddingBottom = reviewSource.getPaddingBottom();
 
       ViewCompat.setOnApplyWindowInsetsListener(reviewSource, (v, insets) -> {
-        Insets navBars =
-            insets.getInsets(WindowInsetsCompat.Type.systemBars());
+        Insets navBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
         v.setPadding(
             v.getPaddingLeft(),
@@ -106,21 +95,20 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
     }
   }
 
-  private void configureAddReviewLink(View view)
+  private void disableReviewSourceLinks(View view)
   {
-    Bundle args = requireArguments();
+    MaterialTextView reviewSource = view.findViewById(R.id.review_source);
 
-    String editorAppName =
-        args.getString(EXTRA_REVIEW_EDITOR_APP_NAME);
-
-    FeatureId featureId = Objects.requireNonNull(
-        Utils.getParcelable(args, EXTRA_FEATURE_ID, FeatureId.class));
-
-    AddReviewController addReviewController =
-        new AddReviewController(
-            view.findViewById(R.id.add_review_container),
-            getParentFragmentManager());
-
-    addReviewController.updateView(editorAppName, featureId);
+    if (reviewSource != null)
+    {
+      reviewSource.setLinksClickable(false);
+      reviewSource.setMovementMethod(null);
+    }
   }
-}
+
+  private void hideAddReviewSection(View view)
+  {
+    View addReviewContainer = view.findViewById(R.id.add_review_container);
+    if (addReviewContainer != null)
+      addReviewContainer.setVisibility(View.GONE);
+  }
