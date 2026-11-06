@@ -1,4 +1,3 @@
-
 package app.organicmaps.util;
 
 import static app.organicmaps.sdk.util.Utils.dimen;
@@ -194,38 +193,11 @@ public class Utils
   }
 
   /**
-   * Browser-free build: permit only explicitly approved
-   * non-web URI schemes through this method.
+   * SansBrowser: external URI launching disabled.
    */
   public static void openUri(@NonNull Context context, @NonNull Uri uri, @Nullable Integer failMessage)
   {
-    final String scheme = uri.getScheme();
-
-    if (scheme == null ||
-        !("geo".equalsIgnoreCase(scheme)
-          || "tel".equalsIgnoreCase(scheme)
-          || "mailto".equalsIgnoreCase(scheme)))
-      return;
-
-    final Intent intent = new Intent(Intent.ACTION_VIEW);
-    intent.setData(uri);
-    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-    try
-    {
-      context.startActivity(intent);
-    }
-    catch (ActivityNotFoundException e)
-    {
-      if (failMessage != null)
-        Toast.makeText(context, context.getString(failMessage), Toast.LENGTH_LONG).show();
-
-      Logger.e(TAG, "ActivityNotFoundException", e);
-    }
-    catch (AndroidRuntimeException e)
-    {
-      Logger.e(TAG, "AndroidRuntimeException", e);
-    }
+    // Intentionally disabled.
   }
 
   private static boolean isHttpOrHttpsScheme(@NonNull String url)
@@ -296,12 +268,13 @@ public class Utils
     sendTo(context, email, subject, "");
   }
 
+  /**
+   * SansBrowser: external email composition disabled.
+   */
   public static void sendTo(@NonNull Context context, @NonNull String email, @NonNull String subject,
                             @NonNull String body)
   {
-    Intent intent = new Intent(Intent.ACTION_SENDTO);
-    intent.setData(Utils.buildMailUri(email, subject, body));
-    context.startActivity(intent);
+    // Intentionally disabled.
   }
 
   public static void callPhone(@NonNull Context context, @NonNull String phone)
