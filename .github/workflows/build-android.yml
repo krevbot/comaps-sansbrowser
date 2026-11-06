@@ -43,6 +43,7 @@ jobs:
             optipng \
             qt6-base-dev \
             qt6-svg-dev \
+            qt6-positioning-dev \
             libicu-dev \
             libfreetype-dev \
             libharfbuzz-dev \
