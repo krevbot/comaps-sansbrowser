@@ -21,6 +21,12 @@ import app.organicmaps.sdk.bookmarks.data.Review;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * SansBrowser:
+ *
+ * Display existing reviews without allowing external
+ * review submission or clickable source links.
+ */
 public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewListAdapter>
 {
   public static final String EXTRA_REVIEWS = "reviews";
@@ -35,6 +41,7 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
 
     DividerItemDecoration divider =
         new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
+
     getRecyclerView().addItemDecoration(divider);
 
     handleBottomNavBar(view);
@@ -43,6 +50,7 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
   }
 
   @LayoutRes
+  @Override
   protected int getLayoutRes()
   {
     return R.layout.fragment_review_list;
@@ -55,22 +63,30 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
     List<Review> reviews;
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+    {
       reviews = Objects.requireNonNull(
           requireArguments().getParcelableArrayList(EXTRA_REVIEWS, Review.class));
+    }
     else
+    {
       //noinspection deprecation
       reviews = Objects.requireNonNull(
           requireArguments().getParcelableArrayList(EXTRA_REVIEWS));
+    }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+    {
       return new ReviewListAdapter(
           reviews,
           getResources().getConfiguration().getLocales().get(0));
+    }
     else
+    {
       //noinspection deprecation
       return new ReviewListAdapter(
           reviews,
           getResources().getConfiguration().locale);
+    }
   }
 
   private void handleBottomNavBar(View view)
@@ -82,7 +98,8 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
       int originalPaddingBottom = reviewSource.getPaddingBottom();
 
       ViewCompat.setOnApplyWindowInsetsListener(reviewSource, (v, insets) -> {
-        Insets navBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+        Insets navBars =
+            insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
         v.setPadding(
             v.getPaddingLeft(),
@@ -109,6 +126,11 @@ public final class ReviewListFragment extends BaseMwmRecyclerFragment<ReviewList
   private void hideAddReviewSection(View view)
   {
     View addReviewContainer = view.findViewById(R.id.add_review_container);
+
     if (addReviewContainer != null)
+    {
+      addReviewContainer.setOnClickListener(null);
       addReviewContainer.setVisibility(View.GONE);
+    }
   }
+}
