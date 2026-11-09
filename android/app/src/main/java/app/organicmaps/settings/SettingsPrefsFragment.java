@@ -10,10 +10,16 @@ import androidx.preference.Preference;
 
 import app.organicmaps.BuildConfig;
 import app.organicmaps.R;
-import app.organicmaps.editor.ProfileActivity;
 import app.organicmaps.help.HelpActivity;
-import app.organicmaps.sdk.editor.OsmOAuth;
 
+/**
+ * SansBrowser:
+ *
+ * Hide OpenStreetMap account settings and prevent
+ * navigation to the disabled account/profile screens.
+ *
+ * Preserve all other application settings.
+ */
 public class SettingsPrefsFragment extends BaseXmlSettingsFragment
 {
   @Override
@@ -26,43 +32,69 @@ public class SettingsPrefsFragment extends BaseXmlSettingsFragment
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
   {
     super.onViewCreated(view, savedInstanceState);
+
+    // SansBrowser: remove OpenStreetMap profile access.
+    hideOsmProfilePreference();
   }
 
   @Override
   public void onResume()
   {
     super.onResume();
-    updateProfileSettingsPrefsSummary();
+
+    hideOsmProfilePreference();
     updateAboutSummary();
   }
 
   @Override
-  public boolean onPreferenceTreeClick(Preference preference)
+  public boolean onPreferenceTreeClick(@NonNull Preference preference)
   {
     final String key = preference.getKey();
+
+    // SansBrowser: block OpenStreetMap profile navigation.
     if (key != null && key.equals(getString(R.string.pref_osm_profile)))
     {
-      startActivity(new Intent(requireActivity(), ProfileActivity.class));
+      return true;
     }
-    else if (key != null && key.equals(getString(R.string.pref_about)))
+
+    if (key != null && key.equals(getString(R.string.pref_about)))
     {
       startActivity(new Intent(requireActivity(), HelpActivity.class));
     }
+
     return super.onPreferenceTreeClick(preference);
   }
 
-  private void updateProfileSettingsPrefsSummary()
+  /**
+   * SansBrowser:
+   *
+   * Hide the OpenStreetMap profile preference.
+   * Authentication requires browser access and is disabled.
+   */
+  private void hideOsmProfilePreference()
   {
     final Preference pref = getPreference(getString(R.string.pref_osm_profile));
-    if (OsmOAuth.isAuthorized())
-      pref.setSummary(OsmOAuth.getUsername());
-    else
-      pref.setSummary(R.string.not_signed_in);
+
+    if (pref != null)
+    {
+      pref.setVisible(false);
+      pref.setEnabled(false);
+      pref.setIntent(null);
+      pref.setOnPreferenceClickListener(null);
+    }
   }
 
+  /**
+   * Keep the About screen and version information working.
+   */
   private void updateAboutSummary()
   {
     final Preference pref = getPreference(getString(R.string.pref_about));
-    pref.setSummary(getString(R.string.pref_about_summary, BuildConfig.VERSION_NAME));
+
+    if (pref != null)
+    {
+      pref.setSummary(
+          getString(R.string.pref_about_summary, BuildConfig.VERSION_NAME));
+    }
   }
 }
