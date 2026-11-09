@@ -34,3 +34,4 @@ public class OsmLoginActivity extends BaseMwmFragmentActivity
   {
     // Intentionally disabled.
   }
+}
