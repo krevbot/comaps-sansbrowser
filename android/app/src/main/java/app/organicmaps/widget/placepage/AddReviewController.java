@@ -6,30 +6,34 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import androidx.fragment.app.FragmentManager;
 
 import app.organicmaps.sdk.bookmarks.data.FeatureId;
 
 /**
- * Browser-free build:
+ * SansBrowser:
  *
- * Disables "Add review" entry points because they depend on opening
- * external review URLs/apps.
+ * Disables review submission because it depends on
+ * opening external review websites or applications.
+ *
+ * Retains the class and public methods for compatibility.
  */
 public final class AddReviewController
 {
   @NonNull
   private final View mView;
 
-  public AddReviewController(@NonNull View view, @NonNull FragmentManager fragmentManager)
+  public AddReviewController(@NonNull View view,
+                             @NonNull FragmentManager fragmentManager)
   {
     mView = view;
     mView.setVisibility(GONE);
   }
 
-  public void updateView(@Nullable String reviewEditorAppName, @NonNull FeatureId featureId)
+  public void updateView(@Nullable String reviewEditorAppName,
+                         @NonNull FeatureId featureId)
   {
-    // Intentionally disabled in browser-free build.
+    // SansBrowser: review submission is disabled.
     mView.setVisibility(GONE);
   }
+}
