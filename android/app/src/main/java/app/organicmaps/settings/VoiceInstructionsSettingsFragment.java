@@ -1,33 +1,25 @@
 package app.organicmaps.settings;
 
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.Toast;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.SeekBarPreference;
 import androidx.preference.TwoStatePreference;
+
 import app.organicmaps.R;
 import app.organicmaps.sdk.Framework;
 import app.organicmaps.sdk.settings.SpeedCameraMode;
 import app.organicmaps.sdk.sound.LanguageData;
 import app.organicmaps.sdk.sound.TtsPlayer;
 import app.organicmaps.sdk.util.Config;
-import app.organicmaps.util.UiUtils;
 import app.organicmaps.util.Utils;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,14 +57,6 @@ public class VoiceInstructionsSettingsFragment extends BaseXmlSettingsFragment
   private final Map<String, LanguageData> mLanguages = new HashMap<>();
   private LanguageData mCurrentLanguage;
   private String mSelectedLanguage;
-
-  private final ActivityResultLauncher<Intent> startInstallDataIntentForResult =
-      registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
-        if (activityResult.getResultCode() == Activity.RESULT_OK)
-        {
-          onInstallDataResult();
-        }
-      });
 
   private final Preference.OnPreferenceChangeListener mEnabledListener = (preference, newValue) ->
   {
@@ -113,11 +97,10 @@ public class VoiceInstructionsSettingsFragment extends BaseXmlSettingsFragment
     if (lang == null)
       return false;
 
+    // SansBrowser: use only locally installed voice data.
+    // Missing voice packs must never launch an external installer.
     if (lang.downloaded)
       setLanguage(lang);
-    else
-      UiUtils.startActivityForResult(startInstallDataIntentForResult,
-                                     new Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA));
 
     return false;
   };
@@ -146,22 +129,9 @@ public class VoiceInstructionsSettingsFragment extends BaseXmlSettingsFragment
     mTtsPrefStreetNames = findPreference(getString(R.string.pref_tts_street_names));
     mTtsLangInfo = getPreference(getString(R.string.pref_tts_info));
 
-    Preference mTtsOpenSystemSettings = getPreference(getString(R.string.pref_tts_open_system_settings));
-    mTtsOpenSystemSettings.setOnPreferenceClickListener(pref -> {
-      try
-      {
-        final Intent intent =
-            new Intent().setAction("com.android.settings.TTS_SETTINGS").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        return true;
-      }
-      catch (ActivityNotFoundException e)
-      {
-        CharSequence noTtsSettingString = getString(R.string.pref_tts_no_system_tts);
-        Toast.makeText(super.getSettingsActivity(), noTtsSettingString, Toast.LENGTH_LONG).show();
-        return false;
-      }
-    });
+    // SansBrowser: remove shortcuts that leave CoMaps.
+    hideExternalPreference(R.string.pref_tts_open_system_settings);
+    hideExternalPreference(R.string.pref_tts_info_link);
 
     mTtsVoiceTest = getPreference(getString(R.string.pref_tts_test_voice));
     mTtsVoiceTest.setOnPreferenceClickListener(pref -> {
@@ -183,7 +153,6 @@ public class VoiceInstructionsSettingsFragment extends BaseXmlSettingsFragment
     };
 
     initVolume();
-    initTtsLangInfoLink();
     initSpeedCamerasPrefs();
     updateTts();
   }
@@ -201,15 +170,6 @@ public class VoiceInstructionsSettingsFragment extends BaseXmlSettingsFragment
   {
     TtsPlayer.sOnReloadCallback = null;
     super.onDestroyView();
-  }
-
-  private void onInstallDataResult()
-  {
-    updateTts();
-
-    LanguageData lang = mLanguages.get(mSelectedLanguage);
-    if (lang != null && lang.downloaded)
-      setLanguage(lang);
   }
 
   private void enableListeners(boolean enable)
@@ -320,23 +280,20 @@ public class VoiceInstructionsSettingsFragment extends BaseXmlSettingsFragment
     TtsPlayer.INSTANCE.setVolume(volume);
   }
 
-  private void initTtsLangInfoLink()
+  /**
+   * SansBrowser: hide external settings and website shortcuts.
+   * Consume any click if the preference is shown by another layout.
+   */
+  private void hideExternalPreference(int keyResId)
   {
-    final Preference ttsLangInfoLink = getPreference(getString(R.string.pref_tts_info_link));
-    final String ttsLinkText = getString(R.string.prefs_languages_information_off_link);
-    final Spannable link = new SpannableString(ttsLinkText + "↗");
-    // Set link color.
-    link.setSpan(new ForegroundColorSpan(ContextCompat.getColor(
-                     requireContext(),
-                     UiUtils.getStyledResourceId(requireContext(), com.google.android.material.R.attr.colorSecondary))),
-                 0, ttsLinkText.length(), 0);
-    ttsLangInfoLink.setSummary(link);
+    final Preference pref = findPreference(getString(keyResId));
+    if (pref == null)
+      return;
 
-    final String ttsInfoUrl = requireActivity().getString(R.string.tts_info_link);
-    ttsLangInfoLink.setOnPreferenceClickListener(preference -> {
-      Utils.openUrl(requireContext(), ttsInfoUrl);
-      return false;
-    });
+    pref.setIntent(null);
+    pref.setOnPreferenceClickListener(preference -> true);
+    pref.setEnabled(false);
+    pref.setVisible(false);
   }
 
   private void initSpeedCamerasPrefs()
