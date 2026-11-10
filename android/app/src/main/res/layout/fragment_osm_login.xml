@@ -6,9 +6,11 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical">
+
   <include
     android:id="@+id/toolbar"
     layout="@layout/toolbar_default" />
+
   <ScrollView
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
@@ -17,6 +19,7 @@
     android:fadeScrollbars="false"
     android:fillViewport="true"
     android:clipToPadding="false">
+
     <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
@@ -25,18 +28,21 @@
       android:orientation="vertical"
       android:padding="@dimen/margin_base"
       tools:ignore="ScrollViewSize">
+
       <com.google.android.material.textview.MaterialTextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/margin_half"
-          android:fontFamily="@string/robotoMedium"
-          android:text="@string/login_to_make_edits_visible"
-          android:textAppearance="@style/MwmTextAppearance.Body2"
-          android:textColor="?android:textColorPrimary" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_half"
+        android:fontFamily="@string/robotoMedium"
+        android:text="@string/login_to_make_edits_visible"
+        android:textAppearance="@style/MwmTextAppearance.Body2"
+        android:textColor="?android:textColorPrimary" />
+
       <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_base">
+
         <com.google.android.material.imageview.ShapeableImageView
           android:id="@+id/osm_logo"
           android:layout_width="@dimen/osm_logo"
@@ -46,12 +52,14 @@
           app:layout_constraintBottom_toBottomOf="parent"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toTopOf="parent" />
+
         <com.google.android.material.textview.MaterialTextView
           android:id="@+id/osm_presentation"
           android:layout_width="0dp"
           android:layout_height="wrap_content"
           android:layout_marginStart="@dimen/margin_base"
-          android:autoLink="web"
+          android:autoLink="none"
+          android:linksClickable="false"
           android:fontFamily="@string/robotoRegular"
           android:text="@string/login_osm_presentation"
           android:textAppearance="@style/MwmTextAppearance.Body3"
@@ -60,11 +68,14 @@
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toEndOf="@+id/osm_logo"
           app:layout_constraintTop_toTopOf="parent" />
+
       </androidx.constraintlayout.widget.ConstraintLayout>
+
       <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_base">
+
         <com.google.android.material.button.MaterialButton
           android:id="@+id/login"
           style="@style/MwmWidget.M3.Button.Primary"
@@ -72,18 +83,22 @@
           android:layout_height="wrap_content"
           android:text="@string/login_osm"
           android:textAppearance="@style/MwmTextAppearance.Body2.Light" />
+
       </FrameLayout>
+
       <com.google.android.material.divider.MaterialDivider
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_base"
         android:layout_marginBottom="@dimen/margin_base" />
+
       <com.google.android.material.textview.MaterialTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/no_osm_account"
         android:textAppearance="@style/MwmTextAppearance.Body2"
         android:textColor="?android:textColorPrimary" />
+
       <com.google.android.material.button.MaterialButton
         android:id="@+id/register"
         style="@style/MwmWidget.M3.Button.Secondary"
@@ -92,6 +107,7 @@
         android:layout_marginTop="@dimen/margin_base"
         android:padding="@dimen/margin_quarter"
         android:text="@string/register_at_openstreetmap" />
+
     </LinearLayout>
   </ScrollView>
 </LinearLayout>
