@@ -1,11 +1,8 @@
 package app.organicmaps.settings;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 
 import app.organicmaps.BuildConfig;
@@ -15,10 +12,13 @@ import app.organicmaps.help.HelpActivity;
 /**
  * SansBrowser:
  *
- * Hide OpenStreetMap account settings and prevent
- * navigation to the disabled account/profile screens.
+ * OpenStreetMap account settings are disabled.
  *
- * Preserve all other application settings.
+ * The OpenStreetMap profile preference has already
+ * been removed from prefs_main.xml, so this fragment
+ * must not attempt to access it.
+ *
+ * All other settings remain available.
  */
 public class SettingsPrefsFragment extends BaseXmlSettingsFragment
 {
@@ -29,20 +29,9 @@ public class SettingsPrefsFragment extends BaseXmlSettingsFragment
   }
 
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
-  {
-    super.onViewCreated(view, savedInstanceState);
-
-    // SansBrowser: remove OpenStreetMap profile access.
-    hideOsmProfilePreference();
-  }
-
-  @Override
   public void onResume()
   {
     super.onResume();
-
-    hideOsmProfilePreference();
     updateAboutSummary();
   }
 
@@ -51,45 +40,26 @@ public class SettingsPrefsFragment extends BaseXmlSettingsFragment
   {
     final String key = preference.getKey();
 
-    // SansBrowser: block OpenStreetMap profile navigation.
-    if (key != null && key.equals(getString(R.string.pref_osm_profile)))
-    {
+    // SansBrowser: prevent OpenStreetMap profile access.
+    if (getString(R.string.pref_osm_profile).equals(key))
       return true;
-    }
 
-    if (key != null && key.equals(getString(R.string.pref_about)))
+    if (getString(R.string.pref_about).equals(key))
     {
       startActivity(new Intent(requireActivity(), HelpActivity.class));
+      return true;
     }
 
     return super.onPreferenceTreeClick(preference);
   }
 
   /**
-   * SansBrowser:
-   *
-   * Hide the OpenStreetMap profile preference.
-   * Authentication requires browser access and is disabled.
-   */
-  private void hideOsmProfilePreference()
-  {
-    final Preference pref = getPreference(getString(R.string.pref_osm_profile));
-
-    if (pref != null)
-    {
-      pref.setVisible(false);
-      pref.setEnabled(false);
-      pref.setIntent(null);
-      pref.setOnPreferenceClickListener(null);
-    }
-  }
-
-  /**
-   * Keep the About screen and version information working.
+   * Preserve the About screen's version information.
    */
   private void updateAboutSummary()
   {
-    final Preference pref = getPreference(getString(R.string.pref_about));
+    final Preference pref =
+        findPreference(getString(R.string.pref_about));
 
     if (pref != null)
     {
