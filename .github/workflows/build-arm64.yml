@@ -1,0 +1,127 @@
+name: Build CoMaps ARM64 Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 200
+
+      - name: Configure and download submodules
+        shell: bash
+        run: |
+          git config --file .gitmodules \
+            submodule.tools/kothic.url \
+            https://codeberg.org/comaps/kothic.git
+
+          git config --file .gitmodules \
+            submodule.3party/protobuf/protobuf.url \
+            https://codeberg.org/comaps/protobuf.git
+
+          git config --file .gitmodules \
+            submodule.3party/just_gtfs.url \
+            https://codeberg.org/comaps/just_gtfs.git
+
+          git submodule sync --recursive
+          git submodule update --init --recursive --jobs 4
+
+      - name: Install map symbol generation dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            ninja-build \
+            optipng \
+            qt6-base-dev \
+            qt6-svg-dev \
+            qt6-positioning-dev \
+            libicu-dev \
+            libfreetype-dev \
+            libharfbuzz-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev
+
+      - name: Configure CoMaps Python environment
+        shell: bash
+        run: |
+          sudo apt-get install -y python3-venv
+          ./configure.sh
+
+      - name: Generate map symbols
+        shell: bash
+        run: |
+          bash tools/unix/generate_symbols.sh
+
+      - name: Verify generated map symbols
+        shell: bash
+        run: |
+          test -s data/symbols/hdpi/light/symbols.sdf
+          test -s data/symbols/hdpi/dark/symbols.sdf
+          echo "Required map symbols generated successfully"
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+
+      - name: Install Android dependencies
+        shell: bash
+        run: |
+          sdkmanager "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;28.2.13676358" \
+            "cmake;3.22.1"
+
+      - name: Make Gradle executable
+        run: chmod +x android/gradlew
+
+      - name: Build ARM64 debug APK
+        working-directory: android
+        run: |
+          ./gradlew \
+            -Pandroidauto=true \
+            -Parm64 \
+            assembleFdroidDebug \
+            --stacktrace
+
+      - name: Verify ARM64 APK and map symbols
+        shell: bash
+        run: |
+          APK=$(find android/app/build/outputs/apk \
+            -name '*.apk' -type f | head -n 1)
+          test -n "$APK"
+
+          unzip -Z1 "$APK" | grep -E \
+            'symbols/hdpi/light/symbols\.sdf$'
+
+          if ! unzip -Z1 "$APK" | grep -qE \
+            '^lib/arm64-v8a/.+\.so$'; then
+            echo "ERROR: ARM64 native libraries missing"
+            exit 1
+          fi
+
+          echo "ARM64 APK verification passed"
+
+      - name: Upload ARM64 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CoMaps-ARM64-Test-APK
+          path: android/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
