@@ -30,6 +30,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 
+
 include(OmimPlatform)
 
 # Prevent older CMake from selecting the obsolete Gold linker
@@ -40,6 +41,9 @@ if(PLATFORM_ANDROID)
 endif()
 
 include(OmimOptions)
+include(OmimConfig)
+include(OmimHelpers)
+include(OmimTesting)
 
 
 if (APPLE AND NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL Android))
