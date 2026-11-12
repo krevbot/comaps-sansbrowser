@@ -29,11 +29,18 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OMIM_ROOT}/cmake")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
+
 include(OmimPlatform)
+
+# Prevent older CMake from selecting the obsolete Gold linker
+# for Android release builds using link-time optimization.
+# Android NDK 28 uses LLD by default.
+if(PLATFORM_ANDROID)
+  set(CMAKE_CXX_LINK_OPTIONS_IPO "")
+endif()
+
 include(OmimOptions)
-include(OmimConfig)
-include(OmimHelpers)
-include(OmimTesting)
+
 
 if (APPLE AND NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL Android))
   # OBJC/OBJCXX are needed to skip m/mm files in Unity builds.
